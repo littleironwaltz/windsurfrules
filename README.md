@@ -1,28 +1,27 @@
-# .windsurfrules サンプル
+# .windsurfrules Sample
 
-このリポジトリは、Windsurfエディター用のワークスペースAIルール( `.windsurfrules` )を管理するためのものです。
+This repository is for managing workspace AI rules (`.windsurfrules`) for the Windsurf editor.
 
-## 前提
+## Prerequisites
 
-- この `.windsurfrules` は **Windsurf Cascade エージェント** での利用を想定しています。
+- This `.windsurfrules` file is intended for use with the **Windsurf Cascade Agent**.
 
-## 概要
+## Overview
 
+## Usage
 
-## 使用方法
+Place the `.windsurfrules` file in your project's root directory.
+Alternatively, from **`Windsurf - Settings`** at the bottom right of the window, click **`Set Workspace AI Rules`** and then **`Edit Rules`** to copy and paste the content of the `.windsurfrules` file.
 
-`.windsurfrules` ファイルをプロジェクトのルートディレクトリに配置します。
-もしくは、ウィンドウ右下の **`Windsurf - Settings`** より、 **`Set Workspace AI Rules`** の **`Edit Rules`** をクリックして `.windsurfrules` ファイルの内容をコピー＆ペーストします。
+## Notes
 
-## 注意事項
+- Modify the contents as necessary to suit your project.
+- The character limit for the `.windsurfrules` file is **6,000 characters**.
 
-- プロジェクトの内容に応じて適宜修正してください。
-- `.windsurfrules` ファイルの文字数の上限は **6,000字** です。
+## License
 
-## ライセンス
+This repository is licensed under the [MIT License](LICENSE). See the [LICENSE](LICENSE) file for details.
 
-本リポジトリは、[MITライセンス](LICENSE) の下で公開されています。詳細は [LICENSE](LICENSE) ファイルをご参照ください。
+## Support
 
-## サポート
-
-- このリポジトリでのサポートは特に行いませんが、フィードバックは大歓迎です。
+- We do not provide specific support for this repository, but feedback is welcome.
