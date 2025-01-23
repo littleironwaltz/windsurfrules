@@ -1,0 +1,228 @@
+# Windsurf: Goプロジェクト
+
+# 1. 基本動作原則
+basic_operation_principles:
+  - name: instruction_reception
+    description: "ユーザー要件を正確に受け取り、疑問は明確にする。"
+  - name: analysis_planning
+    description: "リスク評価やアーキテクチャ検討を行い、段階的な実装計画を策定。"
+  - name: incremental_implementation
+    description: "小さく実装→テスト→レビューの反復で品質を高める。"
+  - name: continuous_feedback
+    description: "適宜進捗を共有し、不明点や課題を迅速に解決。"
+
+# 2. 技術スタックとバージョン管理
+tech_stack:
+  language: Go
+  version: ">= 1.21"
+  modules: { private: true }
+  # バージョン変更には承認が必要
+version_policy:
+  require_approval_for_major_upgrade: true
+
+# 3. プロジェクト構造規約
+project_structure:
+  go_app:
+    root_dir: "go-app/"
+    layers:
+      domain: { allowed_imports: [] }
+      usecase: { allowed_imports: [domain] }
+      interface: { allowed_imports: [usecase] }
+    # 変更禁止ファイル例 (必要に応じて設定)
+    protected_files:
+      - "go-app/internal/api/client.go"
+      - "go-app/internal/api/config.go"
+
+# 4. ルール定義一覧
+
+### 4.1: Go慣用スタイル
+rule1_idiomatic_go:
+  command: "慣用パターン遵守"
+  priority: Critical
+  description: "gofmt, goimports, 短く明確な命名、エラーラップ(fmt.Errorf(\"%w\",...))。"
+  depends_on: []
+  enforcement: strict
+
+### 4.2: クリーンアーキテクチャ
+rule2_clean_architecture:
+  command: "レイヤー間の依存順序"
+  priority: High
+  description: "外部依存→内側のみOK。ドメインロジックを独立させる。"
+  depends_on: [rule1_idiomatic_go]
+  enforcement: strict
+
+### 4.3: Go Modules管理
+rule3_go_modules:
+  command: "依存関係とバージョン固定"
+  priority: High
+  description: "go.mod, go.sumを常時正確に維持。go mod tidy実行を推奨。"
+  depends_on: []
+  enforcement: strict
+
+### 4.4: テスト戦略
+rule4_testing:
+  command: "包括的テストとカバレッジ"
+  priority: Critical
+  description: "テーブルドリブンテスト/モック活用。最低カバレッジ80-85%を目指す。"
+  depends_on: [rule1_idiomatic_go]
+  config:
+    coverage_target: 85
+  enforcement: strict
+
+### 4.5: エラー処理
+rule5_error_handling:
+  command: "統一エラー処理"
+  priority: High
+  description: "errors.Is/As, fmt.Errorf(\"%w\", err)で原因を正確に伝播。"
+  depends_on: [rule4_testing]
+  config:
+    classification:
+      transient: { retries: 3 }
+      fatal: { logging: CRITICAL }
+  enforcement: strict
+
+### 4.6: ログ管理
+rule6_logging:
+  command: "構造化ログ"
+  priority: Medium
+  description: "JSON形式、ログレベル管理、トレース連携を推奨。"
+  depends_on: [rule5_error_handling]
+  config:
+    format: json
+    levels: [INFO, WARN, ERROR]
+  enforcement: strict
+
+### 4.7: セキュリティ対策
+rule7_security:
+  command: "脆弱性スキャン・OWASP準拠"
+  priority: Critical
+  description: "入力バリデーション、多層防御、定期的スキャン。"
+  depends_on: [rule5_error_handling, rule4_testing]
+  enforcement: strict
+
+### 4.8: 並行処理・パフォーマンス
+rule8_concurrency_performance:
+  command: "並行性と性能監視"
+  priority: Medium
+  description: "race detector, pprof でボトルネック検出。"
+  depends_on: [rule4_testing]
+  enforcement: advisory
+
+### 4.9: SOLID / 技術的負債管理
+rule9_solid_techdebt:
+  command: "単一責任/SOLID・重複排除"
+  priority: High
+  description: "保守性を高めるためのリファクタリング指針。"
+  depends_on: [rule2_clean_architecture]
+  enforcement: advisory
+
+### 4.10: ドキュメント規範
+rule10_documentation:
+  command: "GoDoc整備 & ADR活用"
+  priority: Medium
+  description: "関数・構造体へのGoDoc記述。重要設計判断はADRに残す。"
+  depends_on: [rule2_clean_architecture]
+  enforcement: strict
+
+### 4.11: 環境設定
+rule11_configuration:
+  command: "12-factor App的設定管理"
+  priority: High
+  description: "環境変数や設定ファイルを適切に扱い、可搬性を高める。"
+  depends_on: [rule3_go_modules]
+  enforcement: strict
+
+### 4.12: 可観測性
+rule12_observability:
+  command: "ログ・メトリクス・トレースの統合"
+  priority: High
+  description: "ログ収集やメトリクス監視で障害時の原因特定を容易化。"
+  depends_on: [rule6_logging, rule5_error_handling]
+  enforcement: strict
+
+# 5. 実行戦略 (Execution Policy)
+execution_policy:
+  modes:
+    strict:
+      rules: all
+      resource: high
+    balanced:
+      rules: [1,2,3,4,5,7,11]
+      resource: medium
+    lenient:
+      rules: [1,4,5,6,8]
+      resource: low
+
+  context_profiles:
+    new_feature:
+      focus: [2,4,7,9,10]
+      suppress: [8]
+    bug_fix:
+      focus: [4,5,7]
+      suppress: [10]
+    refactor:
+      focus: [9]
+      suppress: [7]
+
+# 6. 例外処理
+exceptions:
+  legacy_code:
+    markers: ["// LEGACY", "#legacy"]
+    rules: [4,9]
+    action: warn
+  experimental:
+    markers: ["// EXPERIMENTAL", "#beta"]
+    rules: [8,7]
+    action: notify
+  vendor_third_party:
+    paths: ["/vendor/", "/third_party/"]
+    rules: all
+    action: suppress
+
+# 7. 可視化・学習システム
+visualization:
+  severity:
+    critical:
+      color: "#F00"
+      sound: alert
+    high:
+      color: "#FA0"
+    medium:
+      color: "#FF0"
+    advisory:
+      color: "#0F0"
+
+learning_system:
+  feedback_loop:
+    enabled: true
+  adaptive_rules:
+    adjustment_rate: 0.25
+
+# 8. 実装プロセス & エラー対応プロトコル
+implementation_process:
+  - phase: "initial_analysis"
+    tasks:
+      - "要件・技術的制約の確認"
+      - "リスク評価とドメイン理解"
+  - phase: "implementation"
+    tasks:
+      - "段階的コーディング → ユニットテスト"
+      - "GoFmt/GoLint/カバレッジチェック"
+  - phase: "verification"
+    tasks:
+      - "統合テスト/負荷テスト"
+      - "カバレッジ報告 (目標達成確認)"
+  - phase: "final_check"
+    tasks:
+      - "ドキュメント最終確認（GoDoc/ADR）"
+      - "セキュリティスキャンとレビュー"
+
+error_handling_protocol:
+  - step: "問題特定"
+    detail: "エラーメッセージ解析と範囲の洗い出し"
+  - step: "解決策策定"
+    detail: "複数案を検討し、リスク評価後に最適解を選択"
+  - step: "実装・検証"
+    detail: "解決策を導入し、テストで再発防止を確認"
+  - step: "文書化"
+    detail: "原因と対処法を共有し、今後の予防策を策定"
